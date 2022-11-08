@@ -1,3 +1,7 @@
+fn usage() {
+    println!("pluscodes");
+}
+
 fn main() {
-    println!("Hello, world!");
+    usage();
 }
