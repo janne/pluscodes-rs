@@ -1,27 +1,22 @@
-use crate::coordinates::Coordinates;
+use crate::utils::{max, min, Coordinate, DIGITS};
 
-fn min(a: f64, b: f64) -> f64 {
-    if a < b {
-        return a;
+pub fn encode(coordinates: &Coordinate, length: usize) -> Option<String> {
+    if length < 2 || length > 10 || length % 2 != 0 {
+        return None;
     }
-    b
-}
 
-fn max(a: f64, b: f64) -> f64 {
-    if a > b {
-        return a;
-    }
-    b
-}
+    let latitude = normalize_latitude(coordinates.latitude);
+    let longitude = normalize_longitude(coordinates.longitude);
 
-const DIGITS: &'static str = "23456789CFGHJMPQRVWX";
+    let mut pluscode = interleave(
+        encode_axis(length >> 1, latitude),
+        encode_axis(length >> 1, longitude),
+    );
 
-// fn digit_to_value(x: char) -> usize {
-//     DIGITS.chars().position(|c| c == x).unwrap()
-// }
+    pluscode = format!("{:0<8}", pluscode);
+    pluscode.insert(8, '+');
 
-fn value_to_digit(x: usize) -> char {
-    DIGITS.chars().nth(x).unwrap()
+    Some(pluscode)
 }
 
 fn normalize_latitude(lat: f64) -> f64 {
@@ -33,6 +28,10 @@ fn normalize_longitude(lon: f64) -> f64 {
         return lon - 180.0;
     }
     lon + 180.0
+}
+
+fn value_to_digit(x: usize) -> char {
+    DIGITS.chars().nth(x).unwrap()
 }
 
 fn digit_reducer(accumulator: Accumulator, _: usize) -> Accumulator {
@@ -71,32 +70,13 @@ fn interleave(xs: Vec<char>, ys: Vec<char>) -> String {
     zipped.iter().flat_map(|(a, b)| vec![*a, *b]).collect()
 }
 
-pub fn encode(coordinates: &Coordinates, length: usize) -> Option<String> {
-    if length < 2 || length > 10 || length % 2 != 0 {
-        return None;
-    }
-
-    let latitude = normalize_latitude(coordinates.latitude);
-    let longitude = normalize_longitude(coordinates.longitude);
-
-    let mut pluscode = interleave(
-        encode_axis(length >> 1, latitude),
-        encode_axis(length >> 1, longitude),
-    );
-
-    pluscode = format!("{:0<8}", pluscode);
-    pluscode.insert(8, '+');
-
-    Some(pluscode)
-}
-
 #[cfg(test)]
 mod tests {
-    use crate::{coordinates::Coordinates, encode::encode};
+    use crate::{encode::encode, utils::Coordinate};
 
     #[test]
     fn it_returns_none_for_invalid_lengths() {
-        let coord = Coordinates {
+        let coord = Coordinate {
             latitude: 59.332438,
             longitude: 18.118813,
         };
@@ -109,7 +89,7 @@ mod tests {
 
     #[test]
     fn it_encodes() {
-        let coord = Coordinates {
+        let coord = Coordinate {
             latitude: 59.332438,
             longitude: 18.118813,
         };
