@@ -16,15 +16,11 @@ fn max(a: f64, b: f64) -> f64 {
 
 const DIGITS: &'static str = "23456789CFGHJMPQRVWX";
 
-fn digit_to_value(x: char) -> usize {
-    DIGITS.chars().position(|c| c == x).unwrap()
-}
+// fn digit_to_value(x: char) -> usize {
+//     DIGITS.chars().position(|c| c == x).unwrap()
+// }
 
 fn value_to_digit(x: usize) -> char {
-    if x >= DIGITS.len() {
-        print!("Invalid value: {}", x);
-        panic!();
-    }
     DIGITS.chars().nth(x).unwrap()
 }
 
@@ -40,10 +36,6 @@ fn normalize_longitude(lon: f64) -> f64 {
 }
 
 fn digit_reducer(accumulator: Accumulator, _: usize) -> Accumulator {
-    println!(
-        "Acc value: {}, pos: {}",
-        accumulator.value, accumulator.pos_value
-    );
     let q = (accumulator.value / accumulator.pos_value).floor();
     let mut result = accumulator.result;
     result.push(value_to_digit(q as usize));
@@ -74,15 +66,9 @@ fn encode_axis(length: usize, value: f64) -> Vec<char> {
         .result
 }
 
-fn interleave(length: usize, xs: Vec<char>, ys: Vec<char>) -> String {
+fn interleave(xs: Vec<char>, ys: Vec<char>) -> String {
     let zipped: Vec<(&char, &char)> = xs.iter().zip(ys.iter()).collect();
-    let flattened: String = zipped.iter().flat_map(|(a, b)| vec![*a, *b]).collect();
-
-    //   const padding = length > 8 ? [] : arrayOf(8 - length, '0')
-    //   const digits = [...flatten(zipped), ...padding]
-
-    //   return [...digits.slice(0, 8), '+', ...digits.slice(8)].join('')
-    return flattened;
+    zipped.iter().flat_map(|(a, b)| vec![*a, *b]).collect()
 }
 
 pub fn encode(coordinates: &Coordinates, length: usize) -> Option<String> {
@@ -93,13 +79,15 @@ pub fn encode(coordinates: &Coordinates, length: usize) -> Option<String> {
     let latitude = normalize_latitude(coordinates.latitude);
     let longitude = normalize_longitude(coordinates.longitude);
 
-    return Some(interleave(
-        length,
+    let mut pluscode = interleave(
         encode_axis(length >> 1, latitude),
         encode_axis(length >> 1, longitude),
-    ));
+    );
 
-    // Some("9FFW84J9+XG".to_string())
+    pluscode = format!("{:0<8}", pluscode);
+    pluscode.insert(8, '+');
+
+    Some(pluscode)
 }
 
 #[cfg(test)]
