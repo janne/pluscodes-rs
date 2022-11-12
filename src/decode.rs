@@ -1,12 +1,12 @@
 use regex::Regex;
 
-use crate::utils::{Coordinate, DIGITS};
+use crate::utils::{Coordinate, InvalidCodeError, DIGITS};
 
-pub fn decode(code: &str) -> Option<Coordinate> {
+pub fn decode(code: &str) -> Result<Coordinate, InvalidCodeError> {
     if !is_valid_code(code) {
-        return None;
+        return Err(InvalidCodeError);
     }
-    Some(Coordinate {
+    Ok(Coordinate {
         latitude: 0.0,
         longitude: 0.0,
     })
@@ -25,11 +25,14 @@ fn is_valid_code(code: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{decode::decode, utils::Coordinate};
+    use crate::{
+        decode::decode,
+        utils::{Coordinate, InvalidCodeError},
+    };
 
     #[test]
     fn it_returns_none_for_invalid_codes() {
-        assert_eq!(decode("foo"), None);
+        assert_eq!(decode("foo"), Err(InvalidCodeError));
     }
 
     #[test]
@@ -40,6 +43,6 @@ mod tests {
             // latitude: 59.332438,
             // longitude: 18.118813,
         };
-        assert_eq!(decode("9FFW84J9+XG"), Some(coord))
+        assert_eq!(decode("9FFW84J9+XG"), Ok(coord))
     }
 }

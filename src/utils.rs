@@ -15,6 +15,15 @@ impl fmt::Display for InvalidLengthError {
 }
 impl Error for InvalidLengthError {}
 
+#[derive(PartialEq, Debug)]
+pub struct InvalidCodeError;
+impl fmt::Display for InvalidCodeError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Invalid length")
+    }
+}
+impl Error for InvalidCodeError {}
+
 pub fn min(a: f64, b: f64) -> f64 {
     if a < b {
         return a;

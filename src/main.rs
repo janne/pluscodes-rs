@@ -37,12 +37,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             println!("{}", code);
         }
         Opt::Decode { code } => {
-            if let Some(coords) = pluscodes::decode(&code) {
-                println!(
-                    "Latitude: {}, Longitude: {}",
-                    coords.latitude, coords.longitude
-                );
-            }
+            let coords = pluscodes::decode(&code)?;
+            println!(
+                "Latitude: {}, Longitude: {}",
+                coords.latitude, coords.longitude
+            );
         }
     }
     Ok(())
