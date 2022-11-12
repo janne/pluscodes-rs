@@ -1,3 +1,5 @@
+use std::error::Error;
+
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -6,30 +8,33 @@ enum Opt {
     Encode {
         #[structopt(long, default_value = "10")]
         length: usize,
-        latitude: String,
-        longitude: String,
+
+        #[structopt(help = "latitude,longitude")]
+        latlon: Vec<String>,
     },
     Decode {
         code: String,
     },
 }
 
-fn main() {
+fn main() -> Result<(), Box<dyn Error>> {
     let opt = Opt::from_args();
 
     match opt {
-        Opt::Encode {
-            length,
-            latitude,
-            longitude,
-        } => {
+        Opt::Encode { length, latlon } => {
+            let latlon: Vec<&str> = latlon
+                .iter()
+                .flat_map(|latlon| latlon.split(","))
+                .filter(|latlon| !latlon.is_empty())
+                .collect();
+            let latitude = latlon[0];
+            let longitude = latlon[1];
             let coord = pluscodes::Coordinate {
                 latitude: latitude.parse().unwrap(),
                 longitude: longitude.parse().unwrap(),
             };
-            if let Some(code) = pluscodes::encode(&coord, length) {
-                println!("{}", code);
-            }
+            let code = pluscodes::encode(&coord, length)?;
+            println!("{}", code);
         }
         Opt::Decode { code } => {
             if let Some(coords) = pluscodes::decode(&code) {
@@ -40,4 +45,5 @@ fn main() {
             }
         }
     }
+    Ok(())
 }

@@ -1,8 +1,19 @@
+use std::{error::Error, fmt};
+
 #[derive(PartialEq, Debug)]
 pub struct Coordinate {
     pub latitude: f64,
     pub longitude: f64,
 }
+
+#[derive(PartialEq, Debug)]
+pub struct InvalidLengthError;
+impl fmt::Display for InvalidLengthError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "Invalid length")
+    }
+}
+impl Error for InvalidLengthError {}
 
 pub fn min(a: f64, b: f64) -> f64 {
     if a < b {

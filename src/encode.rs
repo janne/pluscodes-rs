@@ -1,8 +1,8 @@
-use crate::utils::{max, min, Coordinate, DIGITS};
+use crate::utils::{max, min, Coordinate, InvalidLengthError, DIGITS};
 
-pub fn encode(coordinates: &Coordinate, length: usize) -> Option<String> {
+pub fn encode(coordinates: &Coordinate, length: usize) -> Result<String, InvalidLengthError> {
     if length < 2 || length > 10 || length % 2 != 0 {
-        return None;
+        return Err(InvalidLengthError);
     }
 
     let latitude = normalize_latitude(coordinates.latitude);
@@ -16,7 +16,7 @@ pub fn encode(coordinates: &Coordinate, length: usize) -> Option<String> {
     pluscode = format!("{:0<8}", pluscode);
     pluscode.insert(8, '+');
 
-    Some(pluscode)
+    Ok(pluscode)
 }
 
 fn normalize_latitude(lat: f64) -> f64 {
@@ -72,7 +72,10 @@ fn interleave(xs: Vec<char>, ys: Vec<char>) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::{encode::encode, utils::Coordinate};
+    use crate::{
+        encode::encode,
+        utils::{Coordinate, InvalidLengthError},
+    };
 
     #[test]
     fn it_returns_none_for_invalid_lengths() {
@@ -81,10 +84,10 @@ mod tests {
             longitude: 18.118813,
         };
 
-        assert_eq!(encode(&coord, 0), None);
-        assert_eq!(encode(&coord, 1), None);
-        assert_eq!(encode(&coord, 3), None);
-        assert_eq!(encode(&coord, 11), None);
+        assert_eq!(encode(&coord, 0), Err(InvalidLengthError));
+        assert_eq!(encode(&coord, 1), Err(InvalidLengthError));
+        assert_eq!(encode(&coord, 3), Err(InvalidLengthError));
+        assert_eq!(encode(&coord, 11), Err(InvalidLengthError));
     }
 
     #[test]
@@ -94,7 +97,7 @@ mod tests {
             longitude: 18.118813,
         };
 
-        if let Some(pluscode) = encode(&coord, 10) {
+        if let Ok(pluscode) = encode(&coord, 10) {
             assert_eq!(pluscode, "9FFW84J9+XG");
         }
     }
