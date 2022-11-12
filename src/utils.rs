@@ -39,7 +39,3 @@ pub fn max(a: f64, b: f64) -> f64 {
 }
 
 pub const DIGITS: &'static str = "23456789CFGHJMPQRVWX";
-
-// fn digit_to_value(x: char) -> usize {
-//     DIGITS.chars().position(|c| c == x).unwrap()
-// }

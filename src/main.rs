@@ -38,10 +38,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         Opt::Decode { code } => {
             let coords = pluscodes::decode(&code)?;
-            println!(
-                "Latitude: {}, Longitude: {}",
-                coords.latitude, coords.longitude
-            );
+            println!("{:.6},{:.6}", coords.latitude, coords.longitude);
         }
     }
     Ok(())
