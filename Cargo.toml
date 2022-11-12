@@ -6,7 +6,7 @@ repository = "https://github.com/janne/pluscodes-rs"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-keywords = ["pluscodes", "open location code", "googe maps"]
+keywords = ["pluscodes", "geocode", "olc", "maps"]
 
 [dependencies]
 regex = "1.7.0"
