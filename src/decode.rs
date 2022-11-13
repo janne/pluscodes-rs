@@ -1,10 +1,10 @@
 use regex::Regex;
 
-use crate::utils::{Coordinate, InvalidCodeError, DIGITS};
+use crate::utils::{Coordinate, Error, DIGITS};
 
-pub fn decode(code: &str) -> Result<Coordinate, InvalidCodeError> {
+pub fn decode(code: &str) -> Result<Coordinate, Error> {
     if !is_valid_code(code) {
-        return Err(InvalidCodeError);
+        return Err(Error::InvalidCode(String::from(code)));
     }
 
     let (lat, lon) = code
@@ -77,12 +77,12 @@ fn resolution(code: &str) -> f64 {
 mod tests {
     use crate::{
         decode::decode,
-        utils::{Coordinate, InvalidCodeError},
+        utils::{Coordinate, Error},
     };
 
     #[test]
     fn it_returns_none_for_invalid_codes() {
-        assert_eq!(decode("foo"), Err(InvalidCodeError));
+        assert_eq!(decode("foo"), Err(Error::InvalidCode("foo".to_string())));
     }
 
     #[test]

@@ -1,8 +1,8 @@
-use crate::utils::{max, min, Coordinate, InvalidLengthError, DIGITS};
+use crate::utils::{max, min, Coordinate, Error, DIGITS};
 
-pub fn encode(coordinates: &Coordinate, length: usize) -> Result<String, InvalidLengthError> {
+pub fn encode(coordinates: &Coordinate, length: usize) -> Result<String, Error> {
     if length < 2 || length > 10 || length % 2 != 0 {
-        return Err(InvalidLengthError);
+        return Err(Error::InvalidLength(length));
     }
 
     let latitude = normalize_latitude(coordinates.latitude);
@@ -74,20 +74,20 @@ fn interleave(xs: Vec<char>, ys: Vec<char>) -> String {
 mod tests {
     use crate::{
         encode::encode,
-        utils::{Coordinate, InvalidLengthError},
+        utils::{Coordinate, Error},
     };
 
     #[test]
-    fn it_returns_none_for_invalid_lengths() {
+    fn it_returns_error_for_invalid_lengths() {
         let coord = Coordinate {
             latitude: 59.332438,
             longitude: 18.118813,
         };
 
-        assert_eq!(encode(&coord, 0), Err(InvalidLengthError));
-        assert_eq!(encode(&coord, 1), Err(InvalidLengthError));
-        assert_eq!(encode(&coord, 3), Err(InvalidLengthError));
-        assert_eq!(encode(&coord, 11), Err(InvalidLengthError));
+        assert_eq!(encode(&coord, 0), Err(Error::InvalidLength(0)));
+        assert_eq!(encode(&coord, 1), Err(Error::InvalidLength(1)));
+        assert_eq!(encode(&coord, 3), Err(Error::InvalidLength(3)));
+        assert_eq!(encode(&coord, 11), Err(Error::InvalidLength(11)));
     }
 
     #[test]

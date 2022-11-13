@@ -1,4 +1,4 @@
-use std::error::Error;
+use std::error;
 
 use structopt::StructOpt;
 
@@ -17,21 +17,27 @@ enum Opt {
     },
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn main() -> Result<(), Box<dyn error::Error>> {
     let opt = Opt::from_args();
 
     match opt {
         Opt::Encode { length, latlon } => {
-            let latlon: Vec<&str> = latlon
+            let flattened: Vec<&str> = latlon
                 .iter()
                 .flat_map(|latlon| latlon.split(","))
                 .filter(|latlon| !latlon.is_empty())
                 .collect();
-            let latitude = latlon[0];
-            let longitude = latlon[1];
+            if flattened.len() != 2 {
+                return Err(pluscodes::Error::InvalidCoordinate(latlon).into());
+            }
+            let latitude = flattened[0].parse();
+            let longitude = flattened[1].parse();
+            if latitude.is_err() || longitude.is_err() {
+                return Err(pluscodes::Error::InvalidCoordinate(latlon).into());
+            }
             let coord = pluscodes::Coordinate {
-                latitude: latitude.parse().unwrap(),
-                longitude: longitude.parse().unwrap(),
+                latitude: latitude.unwrap(),
+                longitude: longitude.unwrap(),
             };
             let code = pluscodes::encode(&coord, length)?;
             println!("{}", code);
