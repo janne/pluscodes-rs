@@ -10,7 +10,7 @@ pub struct Coordinate {
 pub enum Error {
     InvalidLength(usize),
     InvalidCode(String),
-    InvalidCoordinate(Vec<String>),
+    InvalidCoordinates(Vec<String>),
 }
 
 impl fmt::Display for Error {
@@ -20,7 +20,7 @@ impl fmt::Display for Error {
                 write!(f, "Invalid length {}, should be 2, 4, 6, 8 or 10", length)
             }
             Error::InvalidCode(code) => write!(f, "Invalid code: {}", code),
-            Error::InvalidCoordinate(coordinate) => {
+            Error::InvalidCoordinates(coordinate) => {
                 write!(f, "Invalid coordinate: {:?}", coordinate)
             }
         }
@@ -43,3 +43,31 @@ pub fn max(a: f64, b: f64) -> f64 {
 }
 
 pub const DIGITS: &'static str = "23456789CFGHJMPQRVWX";
+
+pub fn parse_coordinate(coords: Vec<String>) -> Result<Coordinate, Error> {
+    let flattened: Vec<Result<f64, _>> = coords
+        .iter()
+        .flat_map(|latlon| latlon.split(","))
+        .filter(|latlon| !latlon.is_empty())
+        .map(|coord| coord.parse())
+        .collect();
+
+    if flattened.len() != 2 {
+        return Err(Error::InvalidCoordinates(coords).into());
+    }
+
+    let latitude = match flattened[0] {
+        Ok(c) => c,
+        Err(_) => return Err(Error::InvalidCoordinates(coords)),
+    };
+
+    let longitude = match flattened[1] {
+        Ok(c) => c,
+        Err(_) => return Err(Error::InvalidCoordinates(coords)),
+    };
+
+    Ok(Coordinate {
+        latitude,
+        longitude,
+    })
+}
