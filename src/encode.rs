@@ -1,5 +1,22 @@
 use crate::utils::{max, min, Coordinate, Error, DIGITS};
 
+/// Encode a plus code, given latitude and longitude in a [Coordinate] struct
+///
+/// # Example
+///  
+/// ```
+/// let coord = pluscodes::Coordinate { latitude: 59.335938, longitude: 18.077813 };
+///
+/// if let Ok(pluscode) = pluscodes::encode(&coord, 10) {
+///   assert_eq!(pluscode, "9FFW83PH+94");
+/// }
+/// if let Ok(pluscode) = pluscodes::encode(&coord, 8) {
+///   assert_eq!(pluscode, "9FFW83PH+");
+/// }
+/// if let Ok(pluscode) = pluscodes::encode(&coord, 4) {
+///   assert_eq!(pluscode, "9FFW0000+");
+/// }
+///  ```
 pub fn encode(coordinates: &Coordinate, length: usize) -> Result<String, Error> {
     if length < 2 || length > 10 || length % 2 != 0 {
         return Err(Error::InvalidLength(length));

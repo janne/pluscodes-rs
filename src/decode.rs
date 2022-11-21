@@ -2,6 +2,16 @@ use regex::Regex;
 
 use crate::utils::{Coordinate, Error, DIGITS};
 
+/// Decode a plus code, returns a [Coordinate] struct
+///
+/// # Example
+///  
+/// ```
+/// if let Ok(coord) = pluscodes::decode("9FFW83PH+94") {
+///   assert_eq!(format!("{:.6}", coord.latitude), "59.335938");
+///   assert_eq!(format!("{:.6}", coord.longitude), "18.077813");
+/// }
+///  ```
 pub fn decode(code: &str) -> Result<Coordinate, Error> {
     if !is_valid_code(code) {
         return Err(Error::InvalidCode(String::from(code)));
